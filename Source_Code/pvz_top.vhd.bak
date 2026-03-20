@@ -1,0 +1,116 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity pvz_top is
+    port (
+        sys_clk     : in  std_logic; -- 50MHz
+        sys_rst_n   : in  std_logic;
+        -- SD卡引脚
+        sd_miso     : in  std_logic;
+        sd_clk      : out std_logic;
+        sd_cs       : out std_logic;
+        sd_mosi     : out std_logic;
+        -- 屏幕引脚
+        lcd_bl, lcd_rst, lcd_clk, lcd_hs, lcd_vs, lcd_de : out std_logic;
+        lcd_rgb     : out std_logic_vector(15 downto 0)
+    );
+end pvz_top;
+
+architecture bhv of pvz_top is
+    -- 1. 声明你的 Verilog 插件 (那个“黑盒子”)
+    component sunflower_plugin
+        port (
+            sys_clk, pixel_clk, sys_rst_n : in std_logic;
+            sd_miso : in std_logic;
+            sd_clk, sd_cs, sd_mosi : out std_logic;
+            target_x, target_y : in std_logic_vector(10 downto 0);
+            h_cnt, v_cnt : in std_logic_vector(10 downto 0);
+            pixel_data : out std_logic_vector(15 downto 0);
+            is_sun_area : out std_logic
+        );
+    end component;
+
+    -- 2. 内部信号
+    signal p_clk : std_logic := '0';
+    signal h_pixel, v_pixel : unsigned(10 downto 0) := (others => '0');
+    signal is_sun : std_logic;
+    signal sun_color : std_logic_vector(15 downto 0);
+    
+    -- 游戏逻辑：5x9 的草坪网格 (1代表有植物, 0代表空)
+    type grid_array is array (0 to 4, 0 to 8) of std_logic;
+    signal plant_map : grid_array := (others => (others => '0'));
+    
+    -- 模拟点击测试 (每隔2秒自动种一棵)
+    signal test_timer : unsigned(27 downto 0) := (others => '0');
+    signal test_count : integer range 0 to 44 := 0;
+
+begin
+    -- 产生 25MHz 像素时钟
+    process(sys_clk) begin
+        if rising_edge(sys_clk) then p_clk <= not p_clk; end if;
+    end process;
+    lcd_clk <= p_clk; lcd_bl <= '1'; lcd_rst <= '1';
+
+    -- 3. 队友的逻辑：点哪里种哪里 (这里用定时器模拟“点”的动作)
+    process(p_clk, sys_rst_n) 
+        variable row, col : integer;
+    begin
+        if sys_rst_n = '0' then
+            test_timer <= (others => '0');
+            plant_map <= (others => (others => '0'));
+        elsif rising_edge(p_clk) then
+            if test_timer < 50000000 then -- 约每2秒种一棵
+                test_timer <= test_timer + 1;
+            else
+                test_timer <= (others => '0');
+                row := test_count / 9;
+                col := test_count rem 9;
+                plant_map(row, col) <= '1'; -- 在格子里标记“已种植”
+                if test_count < 44 then test_count <= test_count + 1; end if;
+            end if;
+        end if;
+    end process;
+
+    -- 4. 屏幕扫描逻辑 (800x480)
+    process(p_clk) begin
+        if rising_edge(p_clk) then
+            if h_pixel < 1055 then h_pixel <= h_pixel + 1;
+            else h_pixel <= (others => '0');
+                if v_pixel < 524 then v_pixel <= v_pixel + 1;
+                else v_pixel <= (others => '0'); end if;
+            end if;
+        end if;
+    end process;
+    lcd_de <= '1' when (h_pixel < 800 and v_pixel < 480) else '0';
+    lcd_hs <= '1'; lcd_vs <= '1';
+
+    -- 5. 实例化你的向日葵插件
+    -- 注意：为了支持“到处种”，这里把 target_x/y 设为当前格子左上角
+    u_sun : sunflower_plugin port map (
+        sys_clk => sys_clk, pixel_clk => p_clk, sys_rst_n => sys_rst_n,
+        sd_miso => sd_miso, sd_clk => sd_clk, sd_cs => sd_cs, sd_mosi => sd_mosi,
+        target_x => std_logic_vector(to_unsigned(integer(h_pixel/80)*80 + 10, 11)),
+        target_y => std_logic_vector(to_unsigned(integer(v_pixel/90)*90 + 10, 11)),
+        h_cnt => std_logic_vector(h_pixel), v_cnt => std_logic_vector(v_pixel),
+        pixel_data => sun_color, is_sun_area => is_sun
+    );
+
+    -- 6. 最终画面合成
+    -- 如果当前格子在 plant_map 里是1，且插件说这里有颜色，就显示向日葵
+    process(is_sun, h_pixel, v_pixel, plant_map, sun_color)
+        variable r, c : integer;
+    begin
+        r := integer(v_pixel / 90);
+        c := integer(h_pixel / 80);
+        if (h_pixel < 800 and v_pixel < 480) then
+            if (r <= 4 and c <= 8 and plant_map(r, c) = '1' and is_sun = '1') then
+                lcd_rgb <= sun_color;
+            else
+                -- 简单的背景：深绿色草坪
+                lcd_rgb <= "0000001111100000"; -- BGR565 深绿
+            end if;
+        else lcd_rgb <= (others => '0'); end if;
+    end process;
+
+end bhv;

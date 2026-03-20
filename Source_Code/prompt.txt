@@ -1,0 +1,1 @@
+你看“其他”文件夹下的各个文件，包含了开发板型号、触摸屏型号和SD卡型号和规格。conver.py脚本是用来把.png转化成.bin文件，linker.py用于把各个植物和僵尸的.bin文件整合成一个并生成assets_map.v（地址表）。sunflower、sunflower_state、sun分别代表向日葵摇摆动作、向日葵卡牌亮灭两种状态、阳光；peashooter、peashooter_state、pea同理；zombie是僵尸从正常行走到死亡的动作；zombie_eat是僵尸从进食到死亡的完整动作。zombie和zombie+_eat的僵尸均从第7帧开始掉胳膊。懂了吗？

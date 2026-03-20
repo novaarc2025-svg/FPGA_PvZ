@@ -1,0 +1,66 @@
+// 向日葵插件：队友只需要实例化它
+module sunflower_plugin(
+    input  wire        sys_clk,      // 50MHz (给SD卡搬运数据用)
+    input  wire        pixel_clk,    // 25MHz (队友LCD的时钟)
+    input  wire        sys_rst_n,
+    // SD卡物理引脚 (需要引出到管脚)
+    input  wire        sd_miso,
+    output wire        sd_clk, sd_cs, sd_mosi,
+    // 队友提供的输入
+    input  wire [10:0] target_x,     -- 队友想种在哪个X
+    input  wire [10:0] target_y,     -- 队友想种在哪个Y
+    input  wire [10:0] h_cnt,        -- 队友LCD当前的扫描X
+    input  wire [10:0] v_cnt,        -- 队友LCD当前的扫描Y
+    // 输出给队友的结果
+    output wire [15:0] pixel_data,   -- 该坐标的颜色数据
+    output wire        is_sun_area   -- 告诉队友：现在扫到向日葵的地盘了
+);
+
+// --- 内部数据加载逻辑 (与V2.1一致) ---
+wire ram_we;             
+wire [15:0] sd_raw_q, ram_din, ram_dout;
+reg  [12:0] wa; wire [12:0] ra;
+wire done, busy;
+reg [4:0] sec; reg start, b_dly;
+
+always @(posedge sys_clk) b_dly <= busy;
+wire p = (b_dly && !busy); 
+always @(posedge sys_clk or negedge sys_rst_n) begin
+    if (!sys_rst_n) begin sec <= 0; start <= 0; end
+    else if (done) begin
+        if (sec <= 5'd23 && !busy && !start && wa < 13'd5940) start <= 1'b1;
+        else start <= 1'b0;
+        if (p && sec <= 5'd23) sec <= sec + 1'b1;
+    end
+end
+
+sd_ctrl_top u_sd(.clk_ref(sys_clk),.clk_ref_180deg(~sys_clk),.rst_n(sys_rst_n),.sd_miso(sd_miso),.sd_clk(sd_clk),.sd_cs(sd_cs),.sd_mosi(sd_mosi),.rd_start_en(start),.rd_sec_addr({27'd0,sec}),.rd_busy(busy),.rd_val_en(ram_we),.rd_val_data(sd_raw_q),.sd_init_done(done));
+
+assign ram_din = {sd_raw_q[7:0], sd_raw_q[15:8]}; // 字节交换
+
+always @(posedge sys_clk or negedge sys_rst_n) begin
+    if (!sys_rst_n) wa <= 0;
+    else if (ram_we && wa < 13'd8191) wa <= wa + 1'b1;
+end
+
+sunflower_ram u_ram(.wrclock(sys_clk),.wren(ram_we),.wraddress(wa),.data(ram_din),.rdclock(pixel_clk),.rdaddress(ra),.q(ram_dout));
+
+// --- 往复播放逻辑 (Ping-Pong) ---
+reg [3:0] step; reg [22:0] t;
+always @(posedge pixel_clk) if (t < 23'd5_000_000) t <= t + 1'b1; else begin t <= 0; step <= (step < 9) ? step + 1 : 0; end
+wire [2:0] f = (step <= 5) ? step[2:0] : (4'd10 - step);
+
+// --- 坐标匹配逻辑 ---
+// 向日葵大小是 30x33，放大2倍后是 60x66
+wire hit = (h_cnt >= target_x && h_cnt < target_x + 60) && (v_cnt >= target_y && v_cnt < target_y + 66);
+assign ra = (f * 13'd990) + (((v_cnt - target_y) >> 1) * 30 + ((h_cnt - target_x) >> 1));
+
+// --- 时序对齐与颜色处理 ---
+reg hit_d1; always @(posedge pixel_clk) hit_d1 <= hit;
+wire [15:0] bgr_color = {ram_dout[4:0], ram_dout[10:5], ram_dout[15:11]}; // BGR修正
+
+// 输出：如果是透明色 0xF81F 则判定为不显示
+assign is_sun_area = (hit_d1 && ram_dout != 16'hF81F); 
+assign pixel_data  = is_sun_area ? bgr_color : 16'h0000;
+
+endmodule

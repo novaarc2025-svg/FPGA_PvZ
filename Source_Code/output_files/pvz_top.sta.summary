@@ -1,0 +1,149 @@
+------------------------------------------------------------
+TimeQuest Timing Analyzer Summary
+------------------------------------------------------------
+
+Type  : Slow 1200mV 85C Model Setup 'p_clk'
+Slack : -100.363
+TNS   : -3528.107
+
+Type  : Slow 1200mV 85C Model Setup 'sys_clk'
+Slack : -67.059
+TNS   : -6392.671
+
+Type  : Slow 1200mV 85C Model Setup 'h_p[10]'
+Slack : -23.976
+TNS   : -353.038
+
+Type  : Slow 1200mV 85C Model Setup 'plant_plugin:u_p|sd_ctrl_top:u_sd|sd_init:u_sd_init|div_clk'
+Slack : -3.278
+TNS   : -186.641
+
+Type  : Slow 1200mV 85C Model Hold 'h_p[10]'
+Slack : -13.996
+TNS   : -190.225
+
+Type  : Slow 1200mV 85C Model Hold 'sys_clk'
+Slack : -0.209
+TNS   : -0.344
+
+Type  : Slow 1200mV 85C Model Hold 'p_clk'
+Slack : 0.452
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Hold 'plant_plugin:u_p|sd_ctrl_top:u_sd|sd_init:u_sd_init|div_clk'
+Slack : 0.454
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'h_p[10]'
+Slack : -12.007
+TNS   : -4103.437
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'sys_clk'
+Slack : -3.201
+TNS   : -921.453
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'p_clk'
+Slack : -3.201
+TNS   : -295.742
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'plant_plugin:u_p|sd_ctrl_top:u_sd|sd_init:u_sd_init|div_clk'
+Slack : -1.487
+TNS   : -151.674
+
+Type  : Slow 1200mV 0C Model Setup 'p_clk'
+Slack : -92.261
+TNS   : -3249.733
+
+Type  : Slow 1200mV 0C Model Setup 'sys_clk'
+Slack : -61.804
+TNS   : -5928.673
+
+Type  : Slow 1200mV 0C Model Setup 'h_p[10]'
+Slack : -22.141
+TNS   : -324.725
+
+Type  : Slow 1200mV 0C Model Setup 'plant_plugin:u_p|sd_ctrl_top:u_sd|sd_init:u_sd_init|div_clk'
+Slack : -2.911
+TNS   : -167.021
+
+Type  : Slow 1200mV 0C Model Hold 'h_p[10]'
+Slack : -13.067
+TNS   : -177.577
+
+Type  : Slow 1200mV 0C Model Hold 'sys_clk'
+Slack : -0.188
+TNS   : -0.299
+
+Type  : Slow 1200mV 0C Model Hold 'p_clk'
+Slack : 0.401
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Hold 'plant_plugin:u_p|sd_ctrl_top:u_sd|sd_init:u_sd_init|div_clk'
+Slack : 0.401
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'h_p[10]'
+Slack : -11.167
+TNS   : -3676.117
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'sys_clk'
+Slack : -3.201
+TNS   : -921.453
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'p_clk'
+Slack : -3.201
+TNS   : -295.742
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'plant_plugin:u_p|sd_ctrl_top:u_sd|sd_init:u_sd_init|div_clk'
+Slack : -1.487
+TNS   : -151.674
+
+Type  : Fast 1200mV 0C Model Setup 'p_clk'
+Slack : -42.156
+TNS   : -1412.906
+
+Type  : Fast 1200mV 0C Model Setup 'sys_clk'
+Slack : -27.461
+TNS   : -2525.606
+
+Type  : Fast 1200mV 0C Model Setup 'h_p[10]'
+Slack : -9.958
+TNS   : -141.481
+
+Type  : Fast 1200mV 0C Model Setup 'plant_plugin:u_p|sd_ctrl_top:u_sd|sd_init:u_sd_init|div_clk'
+Slack : -0.896
+TNS   : -27.984
+
+Type  : Fast 1200mV 0C Model Hold 'h_p[10]'
+Slack : -6.045
+TNS   : -82.075
+
+Type  : Fast 1200mV 0C Model Hold 'sys_clk'
+Slack : -0.161
+TNS   : -0.275
+
+Type  : Fast 1200mV 0C Model Hold 'plant_plugin:u_p|sd_ctrl_top:u_sd|sd_init:u_sd_init|div_clk'
+Slack : 0.185
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Hold 'p_clk'
+Slack : 0.186
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'h_p[10]'
+Slack : -4.906
+TNS   : -1504.949
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'sys_clk'
+Slack : -3.000
+TNS   : -665.985
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'p_clk'
+Slack : -1.000
+TNS   : -162.000
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'plant_plugin:u_p|sd_ctrl_top:u_sd|sd_init:u_sd_init|div_clk'
+Slack : -1.000
+TNS   : -102.000
+
+------------------------------------------------------------
